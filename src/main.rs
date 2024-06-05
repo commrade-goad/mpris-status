@@ -5,6 +5,8 @@ enum ProgramMode {
     METADATA,
 }
 
+const MAX_TITLE_CHAR:usize = 70;
+
 fn connect() -> Result<mpris::Player, ()> {
     let player = match PlayerFinder::new() {
         Err(_) => return Err(()),
@@ -29,7 +31,15 @@ fn get_metadata(player_name: &mpris::Player) -> Vec<String> {
         Ok(v) => v,
     };
     if let Some(mpris::MetadataValue::String(title)) = metadata.get("xesam:title") {
-        data.push(title.to_owned());
+        let title_len: usize = title.len();
+        if title_len >= MAX_TITLE_CHAR {
+            let mut title_cp: String = title.to_owned()[..MAX_TITLE_CHAR-1-3].to_string();
+            title_cp.push_str("...");
+            data.push(title_cp);
+
+        } else {
+            data.push(title.to_owned());
+        }
     } else {
         data.push("Not available".to_string());
     };
@@ -103,7 +113,7 @@ fn main() {
     let player = connect();
     match player {
         Err(_) => {
-            println!("No player available.");
+            // println!("No player available.");
             // eprintln!("ERR : Cant get the player!");
             std::process::exit(1);
         }
@@ -112,13 +122,13 @@ fn main() {
                 Some(ProgramMode::STATUS) => {
                     match get_status(&v) {
                         Ok((s, PlaybackStatus::Paused)) => {
-                            println!("{} currently Paused", s.to_uppercase());
+                            println!("{} Currently Paused", s.to_uppercase());
                         }
                         Ok((s,PlaybackStatus::Playing)) => {
-                            println!("{} currently Playing", s.to_uppercase());
+                            println!("{} Currently Playing", s.to_uppercase());
                         }
                         Ok((s,PlaybackStatus::Stopped)) => {
-                            println!("{} currently Stopped", s.to_uppercase());
+                            println!("{} Currently Stopped", s.to_uppercase());
                         }
                         Err(()) => {
                             eprintln!("ERR : Cant get the player current status");
