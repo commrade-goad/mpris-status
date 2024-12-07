@@ -6,6 +6,7 @@ enum ProgramMode {
 }
 
 const MAX_TITLE_CHAR:usize = 70;
+const MAX_ARTIST_CHAR: usize = 25;
 
 fn connect() -> Result<mpris::Player, ()> {
     let player = match PlayerFinder::new() {
@@ -33,7 +34,10 @@ fn get_metadata(player_name: &mpris::Player) -> Vec<String> {
     if let Some(mpris::MetadataValue::String(title)) = metadata.get("xesam:title") {
         let title_len: usize = title.len();
         if title_len >= MAX_TITLE_CHAR {
-            let mut title_cp: String = title.to_owned()[..MAX_TITLE_CHAR-1-3].to_string();
+            let mut title_cp: String = title
+                .chars()
+                .take(MAX_TITLE_CHAR - 1 - 3)
+                .collect();
             title_cp.push_str("...");
             data.push(title_cp);
 
@@ -62,6 +66,14 @@ fn get_metadata(player_name: &mpris::Player) -> Vec<String> {
             } else {
                 data.push("None".to_string());
             }
+        }
+        if data[1].len() > MAX_ARTIST_CHAR {
+            let mut artist_cp : String = data[1].clone() 
+                .chars()
+                .take(MAX_ARTIST_CHAR - 1 - 3)
+                .collect();
+            artist_cp.push_str("...");
+            data[1] = artist_cp;
         }
     };
     if data.len() < 2 {
