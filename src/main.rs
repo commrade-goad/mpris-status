@@ -68,7 +68,7 @@ fn get_metadata(player_name: &mpris::Player) -> Vec<String> {
             }
         }
         if data[1].len() > MAX_ARTIST_CHAR {
-            let mut artist_cp : String = data[1].clone() 
+            let mut artist_cp : String = data[1].clone()
                 .chars()
                 .take(MAX_ARTIST_CHAR - 1 - 3)
                 .collect();
